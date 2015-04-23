@@ -1,0 +1,29 @@
+.tictactoe {
+	margin: 0 auto;
+	height: 500px;
+	width: 700px;
+	background-color: rgba(95,200,123,0.95);
+    text-align: center;
+    font-family:Helvetica;
+}
+.board {
+
+}
+.board .square {
+  width: 100px;
+  height: 100px;
+  margin: 3px;
+  background-size: 100px, 100px;
+}
+
+.blank.square {
+  background-image: url('/images/blank.png');
+}
+
+.x.square {
+  background-image: url('/images/x.png');
+}
+
+.o.square {
+  background-image: url('/images/o.png');
+}
