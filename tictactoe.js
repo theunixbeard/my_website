@@ -1,8 +1,9 @@
 function TicTacToe() {
-  this.board = [[null,null,null],
-                [null,null,null],
-                [null,null,null]];
-  this.initBoard = function() {
+  this.setup = function() {
+    this.board = [[null,null,null],
+                  [null,null,null],
+                  [null,null,null]];
+    this.gameOver = false;
     this.drawBoard();
     this.handleClicks();
   };
@@ -16,8 +17,8 @@ function TicTacToe() {
     square.addClass(symbol);
   };
   this.drawBoard = function() {
-    var boardUI = $(".board");
     var ttt = this;
+    var boardUI = $(".board");
     $.each(this.board, function(x, row) {
       $.each(row, function(y, square) {
         ttt.drawSquare(x,y,square);
@@ -27,15 +28,31 @@ function TicTacToe() {
   this.handleClicks = function() {
     var ttt = this;
     $('.square').each(function() {
-      $(this).click(function() {
+      $(this).off('click').click(function() {
         var x = $(this).data("index-x");
         var y = $(this).data("index-y");
-        if(ttt.canMove(x,y)) {
-          ttt.makeMove(x,y,"x");
-        }
-        ttt.computerMove();
+        ttt.gameLoop(x,y);
       });
     });
+  };
+  this.playerMove = function(x,y) {
+    var ttt = this;
+    if(ttt.canMove(x,y)) {
+      ttt.makeMove(x,y,"x");
+    } else {
+      return;
+    }
+  }
+  this.gameLoop = function(x,y) {
+    var ttt = this;
+    if(!ttt.gameOver) {
+      ttt.playerMove(x,y);
+      ttt.checkWin();
+      if(ttt.gameOver) return;
+      ttt.computerMove();
+      ttt.checkWin();
+      if(ttt.gameOver) return;
+    }
   };
   this.makeMove = function(x,y,symbol) {
     this.board[x][y] = symbol;
@@ -85,25 +102,31 @@ function TicTacToe() {
   this.checkWin = function() {
     var ttt = this;
     var done = false;
+    var possibilities = ttt.rowGenerator();
     while(!done) {
-      next = ttt.winGenerator.next();
-      done = next.done;
-      if(allSame(next)) {
-        return allSame(next);
+      var next = possibilities.next();
+      if(done = next.done) break;
+      var squares = next.value
+      var result = ttt.allSame(squares);
+      if(result) {
+        alert(result + " WINS !!!");
+        ttt.gameOver = true;
+        return result;
       }
     }
     return false;
   };
-  this.allSame(arr) {
+  this.allSame = function(arr) {
     var first = arr[0];
+    var same = first;
     $.each(arr, function(i, el) {
-      if(el !== first) {
-        return false;
+      if(!el || el !== first) {
+        same = false;
       }
     });
-    return first;
+    return same;
   };
-  this.winGenerator = function*() {
+  this.rowGenerator = function*() {
     // Rows
     yield this.board[0];
     yield this.board[1];
@@ -120,5 +143,8 @@ function TicTacToe() {
 
 $(document).ready(function() {
   var ttt = new TicTacToe();
-  ttt.initBoard();
+  ttt.setup();
+  $('.restart').click(function() {
+    ttt.setup();
+  });
 });
